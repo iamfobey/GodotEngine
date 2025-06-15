@@ -33,7 +33,7 @@ namespace GodotTools.Build
                 DisplayServer.ClipboardSet(text);
         }
 
-        public override void _Ready()
+        public override void _ReadyEditor()
         {
             Name = "Output".TTR();
 

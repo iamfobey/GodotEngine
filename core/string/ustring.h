@@ -37,6 +37,7 @@
 #include "core/templates/vector.h"
 #include "core/typedefs.h"
 #include "core/variant/array.h"
+#include "spine_godot/spine-cpp/include/spine/SlotData.h"
 
 class String;
 template <typename T>
@@ -441,6 +442,9 @@ public:
 	String sprintf(const Array &values, bool *error) const;
 	String quote(const String &quotechar = "\"") const;
 	String unquote() const;
+	void parse_utf8(const char * buffer) {
+		*this = utf8(buffer).get_data();
+	}
 	static String num(double p_num, int p_decimals = -1);
 	static String num_scientific(double p_num);
 	static String num_scientific(float p_num);

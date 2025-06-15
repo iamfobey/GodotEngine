@@ -29,7 +29,7 @@ namespace GodotTools.Ides
             return _messagingServer;
         }
 
-        public override void _Ready()
+        public override void _ReadyEditor()
         {
             _ = GetRunningOrNewServer();
         }

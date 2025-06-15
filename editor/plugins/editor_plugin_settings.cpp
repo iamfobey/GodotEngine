@@ -72,7 +72,7 @@ void EditorPluginSettings::update_plugins() {
 	updating = true;
 	TreeItem *root = plugin_list->create_item();
 
-	Vector<String> plugins = _get_plugins("res://addons");
+	Vector<String> plugins = _get_plugins(GLOBAL_GET("application/config/plugins_path"));
 	plugins.sort();
 
 	for (int i = 0; i < plugins.size(); i++) {

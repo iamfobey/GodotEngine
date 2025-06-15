@@ -175,7 +175,7 @@ namespace Godot
         /// <example>
         /// This sample prints a message once every frame up to 100 times.
         /// <code>
-        /// public override void _Ready()
+        /// public override void _ReadyGame()
         /// {
         ///     for (int i = 0; i &lt; 100; i++)
         ///     {

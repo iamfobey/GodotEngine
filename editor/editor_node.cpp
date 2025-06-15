@@ -3879,7 +3879,7 @@ void EditorNode::set_addon_plugin_enabled(const String &p_addon, bool p_enabled,
 	String addon_path = p_addon;
 
 	if (!addon_path.begins_with("res://")) {
-		addon_path = "res://addons/" + addon_path + "/plugin.cfg";
+		addon_path = GLOBAL_GET("application/config/plugins_path") + addon_path + "/plugin.cfg";
 	}
 
 	ERR_FAIL_COND(p_enabled && addon_name_to_plugin.has(addon_path));
@@ -3971,7 +3971,7 @@ bool EditorNode::is_addon_plugin_enabled(const String &p_addon) const {
 		return addon_name_to_plugin.has(p_addon);
 	}
 
-	return addon_name_to_plugin.has("res://addons/" + p_addon + "/plugin.cfg");
+	return addon_name_to_plugin.has(GLOBAL_GET("application/config/plugins_path") + p_addon + "/plugin.cfg");
 }
 
 void EditorNode::_remove_edited_scene(bool p_change_tab) {

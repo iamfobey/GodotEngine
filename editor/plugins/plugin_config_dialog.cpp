@@ -51,7 +51,7 @@ void PluginConfigDialog::_clear_fields() {
 }
 
 void PluginConfigDialog::_on_confirmed() {
-	String path = "res://addons/" + _get_subfolder();
+	String path = GLOBAL_GET("application/config/plugins_path") + _get_subfolder();
 
 	if (!_edit_mode) {
 		Ref<DirAccess> d = DirAccess::create(DirAccess::ACCESS_RESOURCES);

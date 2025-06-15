@@ -392,20 +392,37 @@ protected:
 	virtual void unhandled_input(const Ref<InputEvent> &p_event);
 	virtual void unhandled_key_input(const Ref<InputEvent> &p_key_event);
 
-	GDVIRTUAL1(_process, double)
-	GDVIRTUAL1(_physics_process, double)
-	GDVIRTUAL0(_enter_tree)
-	GDVIRTUAL0(_exit_tree)
-	GDVIRTUAL0(_ready)
-	GDVIRTUAL0RC(Vector<String>, _get_accessibility_configuration_warnings)
-	GDVIRTUAL0RC(Vector<String>, _get_configuration_warnings)
+	GDVIRTUAL1(_process_game, double)
+	GDVIRTUAL1(_physics_process_game, double)
+	GDVIRTUAL0(_enter_tree_game)
+	GDVIRTUAL0(_exit_tree_game)
+	GDVIRTUAL0(_ready_game)
+	GDVIRTUAL0RC(Vector<String>, _get_accessibility_configuration_warnings_game)
+	GDVIRTUAL0RC(Vector<String>, _get_configuration_warnings_game)
 
-	GDVIRTUAL1(_input, Ref<InputEvent>)
-	GDVIRTUAL1(_shortcut_input, Ref<InputEvent>)
-	GDVIRTUAL1(_unhandled_input, Ref<InputEvent>)
-	GDVIRTUAL1(_unhandled_key_input, Ref<InputEvent>)
+	GDVIRTUAL1(_input_game, Ref<InputEvent>)
+	GDVIRTUAL1(_shortcut_input_game, Ref<InputEvent>)
+	GDVIRTUAL1(_unhandled_input_game, Ref<InputEvent>)
+	GDVIRTUAL1(_unhandled_key_input_game, Ref<InputEvent>)
 
-	GDVIRTUAL0RC(RID, _get_focused_accessibility_element)
+	GDVIRTUAL0RC(RID, _get_focused_accessibility_element_game)
+    
+    #if TOOLS_ENABLED
+	GDVIRTUAL1(_process_editor, double)
+	GDVIRTUAL1(_physics_process_editor, double)
+	GDVIRTUAL0(_enter_tree_editor)
+	GDVIRTUAL0(_exit_tree_editor)
+	GDVIRTUAL0(_ready_editor)
+	GDVIRTUAL0RC(Vector<String>, _get_accessibility_configuration_warnings_editor)
+	GDVIRTUAL0RC(Vector<String>, _get_configuration_warnings_editor)
+
+	GDVIRTUAL1(_input_editor, Ref<InputEvent>)
+	GDVIRTUAL1(_shortcut_input_editor, Ref<InputEvent>)
+	GDVIRTUAL1(_unhandled_input_editor, Ref<InputEvent>)
+	GDVIRTUAL1(_unhandled_key_input_editor, Ref<InputEvent>)
+
+	GDVIRTUAL0RC(RID, _get_focused_accessibility_element_editor)
+    #endif
 
 #ifndef DISABLE_DEPRECATED
 	void _set_name_bind_compat_76560(const String &p_name);

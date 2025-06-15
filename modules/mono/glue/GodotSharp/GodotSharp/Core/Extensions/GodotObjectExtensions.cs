@@ -18,7 +18,7 @@ namespace Godot
         /// {
         ///     public string Foo { get; set; } = "bar";
         ///
-        ///     public override void _Ready()
+        ///     public override void _ReadyGame()
         ///     {
         ///         ulong id = GetInstanceId();
         ///         var inst = (MyNode)InstanceFromId(Id);

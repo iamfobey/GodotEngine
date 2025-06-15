@@ -48,6 +48,52 @@ int Node::orphan_node_count = 0;
 
 thread_local Node *Node::current_process_thread_group = nullptr;
 
+// --- Универсальные макросы для ветвления кода редактор/игра ---
+// Внутренняя реализация. Не использовать напрямую.
+#if TOOLS_ENABLED
+#define _EDITOR_OR_GAME_BRANCH_IMPL(m_editor_code, m_game_code) \
+if (Engine::get_singleton()->is_editor_hint()) {            \
+m_editor_code;                                          \
+} else {                                                    \
+m_game_code;                                            \
+}
+#else
+#define _EDITOR_OR_GAME_BRANCH_IMPL(m_editor_code, m_game_code) \
+{                                                           \
+m_game_code;                                            \
+}
+#endif
+
+/**
+ * Выполняет один из двух блоков кода в зависимости от того,
+ * запущена ли программа в редакторе или в игре.
+ */
+#define EDITOR_OR_GAME_BRANCH(m_editor_code, m_game_code) \
+_EDITOR_OR_GAME_BRANCH_IMPL(m_editor_code, m_game_code)
+
+// --- Специализированные макросы для GDVirtual ---
+
+/**
+ * Вызывает GDVIRTUAL_CALL для метода с суффиксом _editor или _game.
+ */
+#define GDVIRTUAL_CALL_EDITOR_OR_GAME(m_base_name, ...)       \
+EDITOR_OR_GAME_BRANCH(                                    \
+GDVIRTUAL_CALL(m_base_name##_editor, ##__VA_ARGS__), \
+GDVIRTUAL_CALL(m_base_name##_game, ##__VA_ARGS__)   \
+)
+
+/**
+ * Вызывает GDVIRTUAL_IS_OVERRIDDEN для метода с суффиксом _editor или _game.
+ * Возвращает bool, предназначен для использования в условиях (if).
+ */
+#if TOOLS_ENABLED
+#define GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(m_base_name) \
+(Engine::get_singleton()->is_editor_hint() ? GDVIRTUAL_IS_OVERRIDDEN(m_base_name##_editor) : GDVIRTUAL_IS_OVERRIDDEN(m_base_name##_game))
+#else
+#define GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(m_base_name) \
+GDVIRTUAL_IS_OVERRIDDEN(m_base_name##_game)
+#endif
+
 void Node::_notification(int p_notification) {
 	switch (p_notification) {
 		case NOTIFICATION_ACCESSIBILITY_INVALIDATE: {
@@ -80,11 +126,11 @@ void Node::_notification(int p_notification) {
 		} break;
 
 		case NOTIFICATION_PROCESS: {
-			GDVIRTUAL_CALL(_process, get_process_delta_time());
+			GDVIRTUAL_CALL_EDITOR_OR_GAME(_process, get_process_delta_time())
 		} break;
 
 		case NOTIFICATION_PHYSICS_PROCESS: {
-			GDVIRTUAL_CALL(_physics_process, get_physics_process_delta_time());
+			GDVIRTUAL_CALL_EDITOR_OR_GAME(_physics_process, get_physics_process_delta_time())
 		} break;
 
 		case NOTIFICATION_ENTER_TREE: {
@@ -240,30 +286,25 @@ void Node::_notification(int p_notification) {
 		} break;
 
 		case NOTIFICATION_READY: {
-			if (GDVIRTUAL_IS_OVERRIDDEN(_input)) {
+			if (GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(_input))
 				set_process_input(true);
-			}
 
-			if (GDVIRTUAL_IS_OVERRIDDEN(_shortcut_input)) {
+			if (GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(_shortcut_input))
 				set_process_shortcut_input(true);
-			}
 
-			if (GDVIRTUAL_IS_OVERRIDDEN(_unhandled_input)) {
+			if (GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(_unhandled_input))
 				set_process_unhandled_input(true);
-			}
 
-			if (GDVIRTUAL_IS_OVERRIDDEN(_unhandled_key_input)) {
+			if (GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(_unhandled_key_input))
 				set_process_unhandled_key_input(true);
-			}
 
-			if (GDVIRTUAL_IS_OVERRIDDEN(_process)) {
+			if (GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(_process))
 				set_process(true);
-			}
-			if (GDVIRTUAL_IS_OVERRIDDEN(_physics_process)) {
-				set_physics_process(true);
-			}
 
-			GDVIRTUAL_CALL(_ready);
+			if (GDVIRTUAL_IS_OVERRIDDEN_EDITOR_OR_GAME(_physics_process))
+				set_physics_process(true);
+
+			GDVIRTUAL_CALL_EDITOR_OR_GAME(_ready)
 		} break;
 
 		case NOTIFICATION_PREDELETE: {
@@ -340,7 +381,7 @@ void Node::_propagate_enter_tree() {
 
 	notification(NOTIFICATION_ENTER_TREE);
 
-	GDVIRTUAL_CALL(_enter_tree);
+	GDVIRTUAL_CALL_EDITOR_OR_GAME(_enter_tree)
 
 	emit_signal(SceneStringName(tree_entered));
 
@@ -405,7 +446,7 @@ void Node::_propagate_exit_tree() {
 
 	data.blocked--;
 
-	GDVIRTUAL_CALL(_exit_tree);
+	GDVIRTUAL_CALL_EDITOR_OR_GAME(_exit_tree)
 
 	emit_signal(SceneStringName(tree_exiting));
 
@@ -3467,9 +3508,14 @@ PackedStringArray Node::get_accessibility_configuration_warnings() const {
 	PackedStringArray ret;
 
 	Vector<String> warnings;
-	if (GDVIRTUAL_CALL(_get_accessibility_configuration_warnings, warnings)) {
+	EDITOR_OR_GAME_BRANCH(
+	if (GDVIRTUAL_CALL(_get_accessibility_configuration_warnings_editor, warnings)) {
+		ret.append_array(warnings);
+	},
+	if (GDVIRTUAL_CALL(_get_accessibility_configuration_warnings_game, warnings)) {
 		ret.append_array(warnings);
 	}
+	)
 
 	return ret;
 }
@@ -3479,9 +3525,14 @@ PackedStringArray Node::get_configuration_warnings() const {
 	PackedStringArray ret;
 
 	Vector<String> warnings;
-	if (GDVIRTUAL_CALL(_get_configuration_warnings, warnings)) {
+	EDITOR_OR_GAME_BRANCH(
+	if (GDVIRTUAL_CALL(_get_configuration_warnings_editor, warnings)) {
+		ret.append_array(warnings);
+	},
+	if (GDVIRTUAL_CALL(_get_configuration_warnings_game, warnings)) {
 		ret.append_array(warnings);
 	}
+	)
 
 	return ret;
 }
@@ -3518,7 +3569,7 @@ void Node::request_ready() {
 
 void Node::_call_input(const Ref<InputEvent> &p_event) {
 	if (p_event->get_device() != InputEvent::DEVICE_ID_INTERNAL) {
-		GDVIRTUAL_CALL(_input, p_event);
+		GDVIRTUAL_CALL_EDITOR_OR_GAME(_input, p_event)
 	}
 	if (!is_inside_tree() || !get_viewport() || get_viewport()->is_input_handled()) {
 		return;
@@ -3528,7 +3579,7 @@ void Node::_call_input(const Ref<InputEvent> &p_event) {
 
 void Node::_call_shortcut_input(const Ref<InputEvent> &p_event) {
 	if (p_event->get_device() != InputEvent::DEVICE_ID_INTERNAL) {
-		GDVIRTUAL_CALL(_shortcut_input, p_event);
+		GDVIRTUAL_CALL_EDITOR_OR_GAME(_shortcut_input, p_event)
 	}
 	if (!is_inside_tree() || !get_viewport() || get_viewport()->is_input_handled()) {
 		return;
@@ -3538,7 +3589,7 @@ void Node::_call_shortcut_input(const Ref<InputEvent> &p_event) {
 
 void Node::_call_unhandled_input(const Ref<InputEvent> &p_event) {
 	if (p_event->get_device() != InputEvent::DEVICE_ID_INTERNAL) {
-		GDVIRTUAL_CALL(_unhandled_input, p_event);
+		GDVIRTUAL_CALL_EDITOR_OR_GAME(_unhandled_input, p_event)
 	}
 	if (!is_inside_tree() || !get_viewport() || get_viewport()->is_input_handled()) {
 		return;
@@ -3548,7 +3599,7 @@ void Node::_call_unhandled_input(const Ref<InputEvent> &p_event) {
 
 void Node::_call_unhandled_key_input(const Ref<InputEvent> &p_event) {
 	if (p_event->get_device() != InputEvent::DEVICE_ID_INTERNAL) {
-		GDVIRTUAL_CALL(_unhandled_key_input, p_event);
+		GDVIRTUAL_CALL_EDITOR_OR_GAME(_unhandled_key_input, p_event)
 	}
 	if (!is_inside_tree() || !get_viewport() || get_viewport()->is_input_handled()) {
 		return;
@@ -3668,11 +3719,19 @@ void Node::notify_thread_safe(int p_notification) {
 
 RID Node::get_focused_accessibility_element() const {
 	RID id;
-	if (GDVIRTUAL_CALL(_get_focused_accessibility_element, id)) {
-		return id;
-	} else {
+
+#if TOOLS_ENABLED
+	if (Engine::get_singleton()->is_editor_hint()) {
+		if (GDVIRTUAL_CALL(_get_focused_accessibility_element_editor, id)) {
+			return id;
+		}
 		return get_accessibility_element();
 	}
+#endif
+	if (GDVIRTUAL_CALL(_get_focused_accessibility_element_game, id)) {
+		return id;
+	}
+	return get_accessibility_element();
 }
 
 void Node::queue_accessibility_update() {
@@ -4002,18 +4061,33 @@ void Node::_bind_methods() {
 	ADD_GROUP("Editor Description", "editor_");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "editor_description", PROPERTY_HINT_MULTILINE_TEXT), "set_editor_description", "get_editor_description");
 
-	GDVIRTUAL_BIND(_process, "delta");
-	GDVIRTUAL_BIND(_physics_process, "delta");
-	GDVIRTUAL_BIND(_enter_tree);
-	GDVIRTUAL_BIND(_exit_tree);
-	GDVIRTUAL_BIND(_ready);
-	GDVIRTUAL_BIND(_get_configuration_warnings);
-	GDVIRTUAL_BIND(_get_accessibility_configuration_warnings);
-	GDVIRTUAL_BIND(_input, "event");
-	GDVIRTUAL_BIND(_shortcut_input, "event");
-	GDVIRTUAL_BIND(_unhandled_input, "event");
-	GDVIRTUAL_BIND(_unhandled_key_input, "event");
-	GDVIRTUAL_BIND(_get_focused_accessibility_element);
+	GDVIRTUAL_BIND(_process_game, "delta");
+	GDVIRTUAL_BIND(_physics_process_game, "delta");
+	GDVIRTUAL_BIND(_enter_tree_game);
+	GDVIRTUAL_BIND(_exit_tree_game);
+	GDVIRTUAL_BIND(_ready_game);
+	GDVIRTUAL_BIND(_get_configuration_warnings_game);
+	GDVIRTUAL_BIND(_get_accessibility_configuration_warnings_game);
+	GDVIRTUAL_BIND(_input_game, "event");
+	GDVIRTUAL_BIND(_shortcut_input_game, "event");
+	GDVIRTUAL_BIND(_unhandled_input_game, "event");
+	GDVIRTUAL_BIND(_unhandled_key_input_game, "event");
+	GDVIRTUAL_BIND(_get_focused_accessibility_element_game);
+
+#if TOOLS_ENABLED
+	GDVIRTUAL_BIND(_process_editor, "delta");
+	GDVIRTUAL_BIND(_physics_process_editor, "delta");
+	GDVIRTUAL_BIND(_enter_tree_editor);
+	GDVIRTUAL_BIND(_exit_tree_editor);
+	GDVIRTUAL_BIND(_ready_editor);
+	GDVIRTUAL_BIND(_get_configuration_warnings_editor);
+	GDVIRTUAL_BIND(_get_accessibility_configuration_warnings_editor);
+	GDVIRTUAL_BIND(_input_editor, "event");
+	GDVIRTUAL_BIND(_shortcut_input_editor, "event");
+	GDVIRTUAL_BIND(_unhandled_input_editor, "event");
+	GDVIRTUAL_BIND(_unhandled_key_input_editor, "event");
+	GDVIRTUAL_BIND(_get_focused_accessibility_element_editor);
+#endif
 }
 
 String Node::_get_name_num_separator() {

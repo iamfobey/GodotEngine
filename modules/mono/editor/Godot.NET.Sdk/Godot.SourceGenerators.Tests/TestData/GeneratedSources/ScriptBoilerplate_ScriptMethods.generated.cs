@@ -9,9 +9,9 @@ partial class ScriptBoilerplate
     /// </summary>
     public new class MethodName : global::Godot.Node.MethodName {
         /// <summary>
-        /// Cached name for the '_Process' method.
+        /// Cached name for the '_ProcessEditor' method.
         /// </summary>
-        public new static readonly global::Godot.StringName @_Process = "_Process";
+        public new static readonly global::Godot.StringName @_ProcessEditor = "_ProcessEditor";
         /// <summary>
         /// Cached name for the 'Bazz' method.
         /// </summary>
@@ -26,7 +26,7 @@ partial class ScriptBoilerplate
     internal new static global::System.Collections.Generic.List<global::Godot.Bridge.MethodInfo> GetGodotMethodList()
     {
         var methods = new global::System.Collections.Generic.List<global::Godot.Bridge.MethodInfo>(2);
-        methods.Add(new(name: MethodName.@_Process, returnVal: new(type: (global::Godot.Variant.Type)0, name: "", hint: (global::Godot.PropertyHint)0, hintString: "", usage: (global::Godot.PropertyUsageFlags)6, exported: false), flags: (global::Godot.MethodFlags)1, arguments: new() { new(type: (global::Godot.Variant.Type)3, name: "delta", hint: (global::Godot.PropertyHint)0, hintString: "", usage: (global::Godot.PropertyUsageFlags)6, exported: false),  }, defaultArguments: null));
+        methods.Add(new(name: MethodName.@_ProcessEditor, returnVal: new(type: (global::Godot.Variant.Type)0, name: "", hint: (global::Godot.PropertyHint)0, hintString: "", usage: (global::Godot.PropertyUsageFlags)6, exported: false), flags: (global::Godot.MethodFlags)1, arguments: new() { new(type: (global::Godot.Variant.Type)3, name: "delta", hint: (global::Godot.PropertyHint)0, hintString: "", usage: (global::Godot.PropertyUsageFlags)6, exported: false),  }, defaultArguments: null));
         methods.Add(new(name: MethodName.@Bazz, returnVal: new(type: (global::Godot.Variant.Type)2, name: "", hint: (global::Godot.PropertyHint)0, hintString: "", usage: (global::Godot.PropertyUsageFlags)6, exported: false), flags: (global::Godot.MethodFlags)1, arguments: new() { new(type: (global::Godot.Variant.Type)21, name: "name", hint: (global::Godot.PropertyHint)0, hintString: "", usage: (global::Godot.PropertyUsageFlags)6, exported: false),  }, defaultArguments: null));
         return methods;
     }
@@ -35,8 +35,8 @@ partial class ScriptBoilerplate
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
     protected override bool InvokeGodotClassMethod(in godot_string_name method, NativeVariantPtrArgs args, out godot_variant ret)
     {
-        if (method == MethodName.@_Process && args.Count == 1) {
-            @_Process(global::Godot.NativeInterop.VariantUtils.ConvertTo<double>(args[0]));
+        if (method == MethodName.@_ProcessEditor && args.Count == 1) {
+            @_ProcessEditor(global::Godot.NativeInterop.VariantUtils.ConvertTo<double>(args[0]));
             ret = default;
             return true;
         }
@@ -51,7 +51,7 @@ partial class ScriptBoilerplate
     [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
     protected override bool HasGodotClassMethod(in godot_string_name method)
     {
-        if (method == MethodName.@_Process) {
+        if (method == MethodName.@_ProcessEditor) {
            return true;
         }
         if (method == MethodName.@Bazz) {

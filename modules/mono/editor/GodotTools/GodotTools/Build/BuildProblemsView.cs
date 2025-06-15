@@ -515,7 +515,7 @@ namespace GodotTools.Build
             };
         }
 
-        public override void _Ready()
+        public override void _ReadyEditor()
         {
             var editorSettings = EditorInterface.Singleton.GetEditorSettings();
             _layout = editorSettings.GetSetting(GodotSharpEditor.Settings.ProblemsLayout).As<ProblemsLayout>();

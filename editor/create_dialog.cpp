@@ -30,6 +30,7 @@
 
 #include "create_dialog.h"
 
+#include "core/config/project_settings.h"
 #include "core/object/class_db.h"
 #include "editor/editor_feature_profile.h"
 #include "editor/editor_node.h"
@@ -209,8 +210,8 @@ bool CreateDialog::_should_hide_type(const StringName &p_type) const {
 		}
 
 		String script_path = ScriptServer::get_global_class_path(p_type);
-		if (script_path.begins_with("res://addons/")) {
-			int i = script_path.find_char('/', 13); // 13 is length of "res://addons/".
+		if (script_path.begins_with(GLOBAL_GET("application/config/plugins_path"))) {
+			int i = script_path.find_char('/', GLOBAL_GET("application/config/plugins_path").stringify().length() - 1);
 			while (i > -1) {
 				const String plugin_path = script_path.substr(0, i).path_join("plugin.cfg");
 				if (FileAccess::exists(plugin_path)) {

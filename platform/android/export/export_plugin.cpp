@@ -3385,7 +3385,7 @@ String EditorExportPlatformAndroid::_resolve_export_plugin_android_library_path(
 		if (p_android_library_path.is_absolute_path()) {
 			absolute_path = ProjectSettings::get_singleton()->globalize_path(p_android_library_path);
 		} else {
-			const String export_plugin_absolute_path = String("res://addons/").path_join(p_android_library_path);
+			const String export_plugin_absolute_path = String(GLOBAL_GET("application/config/plugins_path")).path_join(p_android_library_path);
 			absolute_path = ProjectSettings::get_singleton()->globalize_path(export_plugin_absolute_path);
 		}
 	}
@@ -3665,7 +3665,7 @@ Error EditorExportPlatformAndroid::export_project_helper(const Ref<EditorExportP
 			cmdline.push_back(apk_build_command);
 		}
 
-		String addons_directory = ProjectSettings::get_singleton()->globalize_path("res://addons");
+		String addons_directory = ProjectSettings::get_singleton()->globalize_path(GLOBAL_GET("application/config/plugins_path"));
 
 		cmdline.push_back("-p"); // argument to specify the start directory.
 		cmdline.push_back(build_path); // start directory.
